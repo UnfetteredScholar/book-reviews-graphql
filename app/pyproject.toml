@@ -1,0 +1,21 @@
+[project]
+name = "book-reviews-graphql"
+version = "0.1.0"
+description = "Book reviews service API"
+readme = "../README.md"
+authors = [
+  {name = "Ato Toffah", email = "atotoffah@gmail.com"},
+]
+requires-python = ">=3.11"
+dependencies = [
+    "bcrypt>=4.2.0",
+    "fastapi-pagination>=0.12.31",
+    "fastapi>=0.115.0",
+    "passlib>=1.7.4",
+    "pydantic-settings>=2.5.2",
+    "pymongo>=4.10.1",
+    "python-jose>=3.3.0",
+    "python-multipart>=0.0.12",
+    "strawberry-graphql[fastapi]>=0.246.1",
+    "uvicorn>=0.31.0",
+]

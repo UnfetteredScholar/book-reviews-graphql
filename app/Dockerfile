@@ -15,10 +15,10 @@ ENV PATH="/root/.cargo/bin/:$PATH"
 
 WORKDIR /app
 
-ADD ./app/pyproject.toml ./app/uv.lock ./
+ADD ./pyproject.toml ./uv.lock ./
 
 
-COPY ./app ./
+COPY ./ ./
 
 EXPOSE 8000
 

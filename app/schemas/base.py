@@ -1,5 +1,5 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from pydantic import BeforeValidator
 
-PyObjectId = Annotated[str, BeforeValidator(str)]
+PyObjectId = Annotated[Optional[str], BeforeValidator(str)]

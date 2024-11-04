@@ -11,12 +11,13 @@ RUN sh /uv-installer.sh && rm /uv-installer.sh
 
 # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.cargo/bin/:$PATH"
-
+ENV PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
 
 ADD ./pyproject.toml ./uv.lock ./
 
+RUN uv sync --frozen
 
 COPY ./ ./
 

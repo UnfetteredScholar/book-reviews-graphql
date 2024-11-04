@@ -1,16 +1,13 @@
-from typing import List
-
 import strawberry
-from graph_dependencies.resolver import get_users
-from graph_dependencies.schema import UserType
+from graphql_schema.queries import Mutation, Query
+from graphql_schema.types import Context
 from strawberry.fastapi import GraphQLRouter
 
 
-@strawberry.type
-class Query:
-    users: List[UserType] = strawberry.field(resolver=get_users)
+async def get_context() -> Context:
+    return Context()
 
 
-schema = strawberry.Schema(Query)
+schema = strawberry.Schema(query=Query, mutation=Mutation)
 
-graphql_app = GraphQLRouter(schema)
+graphql_app = GraphQLRouter(schema, context_getter=get_context)

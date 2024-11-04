@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     VERSION: str = "1.0"
     RELEASE_ID: str = "0.1"
     API_V1_STR: str = "/api/v1"
-    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+    MONGO_URI: str = os.getenv("MONGO_URI")
     DATABSE_SERVICE: str = os.getenv("DATABSE_SERVICE", "MONGO")
     DATABSE_NAME: str = os.getenv("DATABSE_NAME", "book_reviews")
     ALLOWED_ORIGINS: str = os.getenv("ALLOWED_ORIGINS", "*")

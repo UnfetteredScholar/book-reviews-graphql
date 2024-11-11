@@ -165,14 +165,19 @@ class MongoStorage:
 
         return author
 
-    def author_get_all_records(self, filter: Dict) -> List[s_author.Author]:
+    def author_get_all_records(
+        self, filter: Dict, limit: Optional[int] = None
+    ) -> List[s_author.Author]:
         """Gets all author records from the db using the supplied filter"""
         authors = self.db["authors"]
 
         if "_id" in filter and type(filter["_id"]) is str:
             filter["_id"] = ObjectId(filter["_id"])
 
-        authors_list = authors.find(filter)
+        authors_list = authors.find(filter).sort({"_id": ASCENDING})
+
+        if limit is not None:
+            authors_list = authors_list.limit(limit)
 
         authors_list = [s_author.Author(**author) for author in authors_list]
 

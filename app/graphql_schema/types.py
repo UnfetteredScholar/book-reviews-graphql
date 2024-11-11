@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 from functools import cached_property
-from typing import List, Optional
+from typing import Generic, List, Optional, TypeVar
 
 import strawberry
 from core.authentication.auth_middleware import get_current_user
@@ -18,6 +18,22 @@ class Context(BaseContext):
         if authorization:
             token = authorization.split(" ")[-1]
             return get_current_user(token=token)
+
+
+@strawberry.type
+class PageMeta:
+    next_cursor: Optional[str] = strawberry.field(
+        description="The next cursor to continue with."
+    )
+
+
+T = TypeVar("T")
+
+
+@strawberry.type
+class Page(Generic[T]):
+    items: List[T]
+    page_meta: PageMeta
 
 
 @strawberry.type
@@ -52,16 +68,19 @@ class BookType:
 
     # Resolved
     authors: List["AuthorType"]
-    reviews: List["ReviewType"]
+    # reviews: List["ReviewType"]
 
 
 @strawberry.type
 class AuthorType:
     id: strawberry.ID
     name: str
+    bio: Optional[str]
+    date_of_birth: Optional[date]
+    gender: Optional[str]
 
     # Resolved
-    books: List[BookType]
+    # books: List[BookType]
 
 
 @strawberry.type

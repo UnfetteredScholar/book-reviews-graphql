@@ -14,9 +14,7 @@ router = APIRouter()
 
 
 @router.get(path="/books", response_model=Page[Book])
-def get_books(
-    title: Optional[str] = None, current_user: User = Depends(get_current_active_user)
-) -> Book:
+def get_books(title: Optional[str] = None) -> Book:
     """Get books"""
     logger = getLogger(__name__ + ".get_book")
     try:
@@ -35,9 +33,7 @@ def get_books(
 
 
 @router.get(path="/books/{book_id}", response_model=Book)
-def get_book(
-    book_id: str, current_user: User = Depends(get_current_active_user)
-) -> Book:
+def get_book(book_id: str) -> Book:
     """Gets an book by id"""
     logger = getLogger(__name__ + ".get_book")
     try:

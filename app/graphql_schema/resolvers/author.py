@@ -7,7 +7,8 @@ import strawberry
 from bson.objectid import ObjectId
 from core.storage import storage
 from fastapi import HTTPException, status
-from graphql_schema.resolvers import convert_to_type, get_context_user
+from graphql_schema import convert_to_type
+from graphql_schema.resolvers import get_context_user
 from graphql_schema.types import AuthorType, Context, Page, PageMeta
 from schemas import author as s_author
 

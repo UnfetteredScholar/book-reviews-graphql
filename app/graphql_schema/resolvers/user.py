@@ -6,7 +6,7 @@ from core.authentication.auth_middleware import authenticate_user
 from core.authentication.auth_token import create_access_token
 from core.storage import storage
 from fastapi import HTTPException, status
-from graphql_schema.resolvers import convert_to_type, get_context_user
+from graphql_schema.resolvers import get_context_user
 from graphql_schema.types import Context, UserType
 from pydantic import BaseModel
 from schemas import user as s_user

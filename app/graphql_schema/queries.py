@@ -1,6 +1,6 @@
 import strawberry
-from graphql_schema.resolvers import author, user
-from graphql_schema.types import AuthorType, Page, UserType
+from graphql_schema.resolvers import author, book, user
+from graphql_schema.types import AuthorType, BookType, Page, UserType
 
 
 @strawberry.type
@@ -17,8 +17,14 @@ class Query:
     get_author: AuthorType = strawberry.field(
         resolver=author.get_author, description=author.get_author.__doc__
     )
-    # author: AuthorType
-    # authors: List[AuthorType]
+
+    # Books
+    get_books: Page[BookType] = strawberry.field(
+        resolver=book.get_books, description=book.get_books.__doc__
+    )
+    get_book: BookType = strawberry.field(
+        resolver=book.get_book, description=book.get_book.__doc__
+    )
 
 
 @strawberry.type
@@ -42,4 +48,17 @@ class Mutation:
 
     delete_author: bool = strawberry.field(
         resolver=author.delete_author, description=author.delete_author.__doc__
+    )
+
+    # Books
+    add_book: BookType = strawberry.field(
+        resolver=book.add_book, description=book.add_book.__doc__
+    )
+
+    update_book: BookType = strawberry.field(
+        resolver=book.update_book, description=book.update_book.__doc__
+    )
+
+    delete_book: bool = strawberry.field(
+        resolver=book.delete_book, description=book.delete_book.__doc__
     )

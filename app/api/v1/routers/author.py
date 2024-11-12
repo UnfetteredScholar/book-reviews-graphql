@@ -14,9 +14,7 @@ router = APIRouter()
 
 
 @router.get(path="/authors", response_model=Page[Author])
-def get_authors(
-    name: Optional[str] = None, current_user: User = Depends(get_current_active_user)
-) -> Author:
+def get_authors(name: Optional[str] = None) -> Author:
     """Get  authors"""
     logger = getLogger(__name__ + ".get_author")
     try:
@@ -35,9 +33,7 @@ def get_authors(
 
 
 @router.get(path="/authors/{author_id}", response_model=Author)
-def get_author(
-    author_id: str, current_user: User = Depends(get_current_active_user)
-) -> Author:
+def get_author(author_id: str) -> Author:
     """Gets an author by id"""
     logger = getLogger(__name__ + ".get_author")
     try:

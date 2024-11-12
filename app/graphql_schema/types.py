@@ -3,7 +3,10 @@ from functools import cached_property
 from typing import Generic, List, Optional, TypeVar
 
 import strawberry
+from bson.objectid import ObjectId
 from core.authentication.auth_middleware import get_current_user
+from core.storage import storage
+from graphql_schema import convert_to_type
 from schemas.user import Role, SignInType, User, UserStatus
 from strawberry.fastapi import BaseContext
 
@@ -56,7 +59,8 @@ class UserType:
 @strawberry.type
 class BookType:
     id: strawberry.ID
-    isbn: str
+    isbn_10: Optional[str]
+    isbn_13: Optional[str]
     author_ids: List[str]
     title: str
     genres: List[str]
@@ -67,7 +71,17 @@ class BookType:
     release_date: Optional[datetime]
 
     # Resolved
-    authors: List["AuthorType"]
+    # authors: List["AuthorType"]
+    @strawberry.field
+    def authors(self) -> List["AuthorType"]:
+        """The book's authors"""
+        ids = [ObjectId(id) for id in self.author_ids]
+
+        authors = storage.author_get_all_records({"_id": {"$in": ids}})
+        authors = [convert_to_type(author, AuthorType) for author in authors]
+
+        return authors
+
     # reviews: List["ReviewType"]
 
 

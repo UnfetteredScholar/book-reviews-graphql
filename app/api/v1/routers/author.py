@@ -2,6 +2,7 @@ from logging import getLogger
 from typing import Optional
 
 from core.authentication.auth_middleware import get_current_active_user
+from core.authentication.role import allow_resource_admin
 from core.storage import storage
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -51,7 +52,9 @@ def get_author(
         raise ex
 
 
-@router.post(path="/authors", response_model=Author)
+@router.post(
+    path="/authors", response_model=Author, dependencies=[Depends(allow_resource_admin)]
+)
 def add_author(
     data: AuthorIn, current_user: User = Depends(get_current_active_user)
 ) -> Author:
@@ -68,7 +71,11 @@ def add_author(
         raise ex
 
 
-@router.patch(path="/authors/{author_id}", response_model=Author)
+@router.patch(
+    path="/authors/{author_id}",
+    response_model=Author,
+    dependencies=[Depends(allow_resource_admin)],
+)
 def update_author(
     data: AuthorUpdate,
     author_id: str,
@@ -89,7 +96,11 @@ def update_author(
         raise ex
 
 
-@router.delete(path="/authors/{author_id}", response_model=Author)
+@router.delete(
+    path="/authors/{author_id}",
+    response_model=Author,
+    dependencies=[Depends(allow_resource_admin)],
+)
 def delete_author(
     author_id: str, current_user: User = Depends(get_current_active_user)
 ) -> Author:

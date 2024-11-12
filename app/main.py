@@ -1,5 +1,5 @@
 import graphql_router as graphql_router
-from api.v1.routers import author, health, user
+from api.v1.routers import author, book, health, user
 from core.config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +27,8 @@ app.include_router(router=health.router, prefix=settings.API_V1_STR, tags=["heal
 
 app.include_router(router=user.router, prefix=settings.API_V1_STR, tags=["user"])
 app.include_router(router=author.router, prefix=settings.API_V1_STR, tags=["author"])
+
+app.include_router(router=book.router, prefix=settings.API_V1_STR, tags=["book"])
 
 
 @app.get(path="/", include_in_schema=False)

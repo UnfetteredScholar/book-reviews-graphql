@@ -12,6 +12,7 @@ from fastapi_pagination.ext.pymongo import paginate
 from pymongo import ASCENDING
 from pymongo.mongo_client import MongoClient
 from schemas import author as s_author
+from schemas import book as s_book
 from schemas import user as s_user
 
 
@@ -225,3 +226,108 @@ class MongoStorage:
         self.author_verify_record(filter)
 
         self.db["authors"].delete_one(filter)
+
+    # books
+    def book_create_record(
+        self,
+        book_data: s_book.BookIn,
+    ) -> str:
+        """Creates an book record"""
+        books_table = self.db["books"]
+        date = datetime.now(UTC)
+        book = s_book.Book(
+            isbn_10=book_data.isbn_10,
+            isbn_13=book_data.isbn_13,
+            author_ids=book_data.author_ids,
+            title=book_data.title,
+            genres=book_data.genres,
+            series=book_data.series,
+            series_number=book_data.series_number,
+            pages=book_data.pages,
+            blurb=book_data.blurb,
+            date_created=date,
+            date_modified=date,
+            release_date=book_data.release_date,
+        )
+        print("Saving book")
+
+        id = str(
+            books_table.insert_one(book.model_dump(exclude_unset=True)).inserted_id
+        )
+
+        return id
+
+    def book_get_record(self, filter: Dict) -> Optional[s_book.Book]:
+        """Gets a book record from the db using the supplied filter"""
+        books = self.db["books"]
+
+        if "_id" in filter and type(filter["_id"]) is str:
+            filter["_id"] = ObjectId(filter["_id"])
+
+        book = books.find_one(filter)
+
+        if book:
+            book = s_book.Book(**book)
+
+        return book
+
+    def book_get_all_records(
+        self, filter: Dict, limit: Optional[int] = None
+    ) -> List[s_book.Book]:
+        """Gets all book records from the db using the supplied filter"""
+        books = self.db["books"]
+
+        if "_id" in filter and type(filter["_id"]) is str:
+            filter["_id"] = ObjectId(filter["_id"])
+
+        books_list = books.find(filter).sort({"_id": ASCENDING})
+
+        if limit is not None:
+            books_list = books_list.limit(limit)
+
+        books_list = [s_book.Book(**book) for book in books_list]
+
+        return books_list
+
+    def book_get_records_page(self, filter: Dict) -> Page[s_book.Book]:
+        """Gets a page of book records from the db using the supplied filter"""
+        books = self.db["books"]
+
+        if "_id" in filter and type(filter["_id"]) is str:
+            filter["_id"] = ObjectId(filter["_id"])
+
+        result = paginate(collection=books, query_filter=filter)
+
+        return result
+
+    def book_verify_record(self, filter: Dict) -> s_book.Book:
+        """
+        Gets a book record using the filter
+        and raises an error if a matching record is not found
+        """
+
+        book = self.book_get_record(filter)
+
+        if book is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+            )
+
+        return book
+
+    def book_update_record(self, filter: Dict, update: Dict):
+        """Updates a book record"""
+        self.book_verify_record(filter)
+
+        for key in ["_id"]:
+            if key in update:
+                raise KeyError(f"Invalid Key. KEY {key} cannot be changed")
+        update["date_modified"] = datetime.now(UTC)
+
+        return self.db["books"].update_one(filter, {"$set": update})
+
+    def book_delete_record(self, filter: Dict):
+        """Deletes a book record"""
+        self.book_verify_record(filter)
+
+        self.db["books"].delete_one(filter)

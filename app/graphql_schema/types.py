@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 from functools import cached_property
 from typing import Generic, List, Optional, TypeVar
 
@@ -76,7 +76,7 @@ class AuthorType:
     id: strawberry.ID
     name: str
     bio: Optional[str]
-    date_of_birth: Optional[date]
+    date_of_birth: Optional[datetime]
     gender: Optional[str]
 
     # Resolved

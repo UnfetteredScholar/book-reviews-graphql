@@ -71,7 +71,6 @@ class BookType:
     release_date: Optional[datetime]
 
     # Resolved
-    # authors: List["AuthorType"]
     @strawberry.field
     def authors(self) -> List["AuthorType"]:
         """The book's authors"""
@@ -94,7 +93,15 @@ class AuthorType:
     gender: Optional[str]
 
     # Resolved
-    # books: List[BookType]
+    @strawberry.field(description="Gets the author's books")
+    def books(self) -> List[BookType]:
+        """Gets the author's books"""
+        filter = {"author_ids": self.id}
+        books = storage.book_get_all_records(filter=filter)
+
+        books = [convert_to_type(book, BookType) for book in books]
+
+        return books
 
 
 @strawberry.type

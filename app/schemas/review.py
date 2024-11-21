@@ -22,3 +22,9 @@ class ReviewIn(BaseModel):
     rating: int
     title: Optional[str] = None
     content: Optional[str] = None
+
+
+class ReviewUpdate(BaseModel):
+    rating: int = 0
+    title: Optional[str] = None
+    content: Optional[str] = None

@@ -47,7 +47,7 @@ def get_books(
     cursor: Optional[str] = None,
 ) -> Page[BookType]:
     """Get books"""
-    logger = getLogger(__name__ + ".get_book")
+    logger = getLogger(__name__ + ".get_books")
     try:
         filter = {}
         if title is not None:

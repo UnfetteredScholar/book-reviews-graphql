@@ -13,6 +13,7 @@ from pymongo import ASCENDING
 from pymongo.mongo_client import MongoClient
 from schemas import author as s_author
 from schemas import book as s_book
+from schemas import review as s_review
 from schemas import user as s_user
 
 
@@ -167,7 +168,7 @@ class MongoStorage:
         return author
 
     def author_get_all_records(
-        self, filter: Dict, limit: Optional[int] = None
+        self, filter: Dict, limit: int = 0
     ) -> List[s_author.Author]:
         """Gets all author records from the db using the supplied filter"""
         authors = self.db["authors"]
@@ -175,10 +176,7 @@ class MongoStorage:
         if "_id" in filter and type(filter["_id"]) is str:
             filter["_id"] = ObjectId(filter["_id"])
 
-        authors_list = authors.find(filter).sort({"_id": ASCENDING})
-
-        if limit is not None:
-            authors_list = authors_list.limit(limit)
+        authors_list = authors.find(filter).sort({"_id": ASCENDING}).limit(limit)
 
         authors_list = [s_author.Author(**author) for author in authors_list]
 
@@ -271,19 +269,14 @@ class MongoStorage:
 
         return book
 
-    def book_get_all_records(
-        self, filter: Dict, limit: Optional[int] = None
-    ) -> List[s_book.Book]:
+    def book_get_all_records(self, filter: Dict, limit: int = 0) -> List[s_book.Book]:
         """Gets all book records from the db using the supplied filter"""
         books = self.db["books"]
 
         if "_id" in filter and type(filter["_id"]) is str:
             filter["_id"] = ObjectId(filter["_id"])
 
-        books_list = books.find(filter).sort({"_id": ASCENDING})
-
-        if limit is not None:
-            books_list = books_list.limit(limit)
+        books_list = books.find(filter).sort({"_id": ASCENDING}).limit(limit)
 
         books_list = [s_book.Book(**book) for book in books_list]
 
@@ -331,3 +324,100 @@ class MongoStorage:
         self.book_verify_record(filter)
 
         self.db["books"].delete_one(filter)
+
+    # reviews
+    def review_create_record(
+        self,
+        review_data: s_review.ReviewIn,
+        user_id: str,
+        book_id: str,
+    ) -> str:
+        """Creates an review record"""
+        reviews_table = self.db["reviews"]
+        date = datetime.now(UTC)
+        review = s_review.Review(
+            user_id=user_id,
+            book_id=book_id,
+            rating=review_data.rating,
+            title=review_data.title,
+            content=review_data.content,
+            date_created=date,
+            date_modified=date,
+        )
+        id = str(
+            reviews_table.insert_one(review.model_dump(exclude_unset=True)).inserted_id
+        )
+
+        return id
+
+    def review_get_record(self, filter: Dict) -> Optional[s_review.Review]:
+        """Gets a review record from the db using the supplied filter"""
+        reviews = self.db["reviews"]
+
+        if "_id" in filter and type(filter["_id"]) is str:
+            filter["_id"] = ObjectId(filter["_id"])
+
+        review = reviews.find_one(filter)
+
+        if review:
+            review = s_review.Review(**review)
+
+        return review
+
+    def review_get_all_records(
+        self, filter: Dict, limit: int = 0
+    ) -> List[s_review.Review]:
+        """Gets all review records from the db using the supplied filter"""
+        reviews = self.db["reviews"]
+
+        if "_id" in filter and type(filter["_id"]) is str:
+            filter["_id"] = ObjectId(filter["_id"])
+
+        reviews_list = reviews.find(filter).sort({"_id": ASCENDING}).limit(limit)
+
+        reviews_list = [s_review.Review(**review) for review in reviews_list]
+
+        return reviews_list
+
+    def review_get_records_page(self, filter: Dict) -> Page[s_review.Review]:
+        """Gets a page of review records from the db using the supplied filter"""
+        reviews = self.db["reviews"]
+
+        if "_id" in filter and type(filter["_id"]) is str:
+            filter["_id"] = ObjectId(filter["_id"])
+
+        result = paginate(collection=reviews, query_filter=filter)
+
+        return result
+
+    def review_verify_record(self, filter: Dict) -> s_review.Review:
+        """
+        Gets a review record using the filter
+        and raises an error if a matching record is not found
+        """
+
+        review = self.review_get_record(filter)
+
+        if review is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Review not found"
+            )
+
+        return review
+
+    def review_update_record(self, filter: Dict, update: Dict):
+        """Updates a review record"""
+        self.review_verify_record(filter)
+
+        for key in ["_id", "user_id", "book_id"]:
+            if key in update:
+                raise KeyError(f"Invalid Key. KEY {key} cannot be changed")
+        update["date_modified"] = datetime.now(UTC)
+
+        return self.db["reviews"].update_one(filter=filter, update={"$set": update})
+
+    def review_delete_record(self, filter: Dict):
+        """Deletes a review record"""
+        self.review_verify_record(filter)
+
+        self.db["reviews"].delete_one(filter)

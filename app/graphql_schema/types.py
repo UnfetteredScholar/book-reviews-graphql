@@ -53,7 +53,14 @@ class UserType:
     date_modified: datetime
 
     # Resolved
-    # reviews: List["ReviewType"]
+    @strawberry.field
+    def reviews(self) -> List["ReviewType"]:
+        """Gets a user's reviews"""
+
+        reviews = storage.review_get_all_records({"user_id": self.id})
+        reviews = [convert_to_type(review, ReviewType) for review in reviews]
+
+        return reviews
 
 
 @strawberry.type
@@ -81,7 +88,14 @@ class BookType:
 
         return authors
 
-    # reviews: List["ReviewType"]
+    @strawberry.field
+    def reviews(self) -> List["ReviewType"]:
+        """Gets a book's reviews"""
+
+        reviews = storage.review_get_all_records({"book_id": self.id})
+        reviews = [convert_to_type(review, ReviewType) for review in reviews]
+
+        return reviews
 
 
 @strawberry.type
@@ -112,5 +126,10 @@ class ReviewType:
     rating: int
     title: Optional[str]
     content: Optional[str]
+
     # Resolved
-    user: UserType
+    @strawberry.field
+    def user(self) -> UserType:
+        """Gets the user of a review"""
+        user = storage.user_verify_record({"_id": self.user_id})
+        return convert_to_type(user, UserType)
